@@ -103,3 +103,24 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 Run `supabase-schema.sql` in the Supabase SQL Editor to initialize all tables, foreign keys, and Row Level Security policies.
+
+## Ã°Å¸Å¡â‚¬ New Modules (Latest Update)
+
+### Projects & Site Management
+- Project-centric tracking linking POs, invoices, payments, and GRNs to construction sites.
+
+### PO Line Items, GRN & Three-Way Match
+- Detailed PO line items with tax, HSN/SAC, and line totals. 
+- Goods Receipt Notes (GRN) with line-level acceptance/rejection for 3-way match (PO + GRN + Invoice).
+
+### Payments & Settlements
+- UTR/Bank reference tracking, processing states (Initiated/Processing/In Escrow/Settled/Failed/Reversed), timestamps, and failure reasons.
+
+### Invoices
+- Partially paid support with auto-calculated balance due; paid/partially paid timestamps.
+
+### Inventory
+- Avg/last cost tracking, unit/location metadata, and immutable movement audit log (IN/OUT/ADJUST/TRANSFER/RETURN/WRITE-OFF).
+
+### Audit & Compliance
+- Organization-scoped immutable audit logs (actor, action, resource, metadata, IP/user-agent) with finance/admin/owner read access.

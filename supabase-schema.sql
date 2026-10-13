@@ -188,3 +188,215 @@ CREATE POLICY "Finance and Owners can execute payments"
             WHERE id = auth.uid() AND role IN ('owner', 'admin', 'finance')
         )
     );
+
+-- =========================================================
+-- EXTENDED MODULES: PROJECTS, LINE ITEMS, GRN, AUDIT
+-- =========================================================
+
+-- 8. Projects / Construction Sites
+CREATE TABLE IF NOT EXISTS public.projects (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    name TEXT NOT NULL,
+    code TEXT,
+    site_location TEXT,
+    status TEXT DEFAULT 'Active' CHECK (status IN ('Active', 'On Hold', 'Completed', 'Archived')),
+    start_date DATE,
+    end_date DATE,
+    budget NUMERIC DEFAULT 0.00,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(organization_id, COALESCE(code, name))
+);
+
+-- 9. PO Line Items (Two/Three-Way Reconciliation)
+CREATE TABLE IF NOT EXISTS public.po_line_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    purchase_order_id UUID REFERENCES public.purchase_orders(id) ON DELETE CASCADE NOT NULL,
+    inventory_item_id UUID REFERENCES public.inventory_items(id),
+    sku TEXT,
+    description TEXT NOT NULL,
+    quantity NUMERIC NOT NULL CHECK (quantity >= 0),
+    unit_of_measure TEXT DEFAULT 'EA',
+    unit_price NUMERIC NOT NULL CHECK (unit_price >= 0),
+    tax_rate NUMERIC DEFAULT 0.00 CHECK (tax_rate >= 0 AND tax_rate <= 100),
+    tax_amount NUMERIC GENERATED ALWAYS AS ((quantity * unit_price) * (tax_rate / 100.0)) STORED,
+    line_total NUMERIC GENERATED ALWAYS AS ((quantity * unit_price) + ((quantity * unit_price) * (tax_rate / 100.0))) STORED,
+    hsn_sac TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 10. Goods Receipt Notes (GRN) - 3-Way Match Support
+CREATE TABLE IF NOT EXISTS public.grn (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    grn_number TEXT NOT NULL,
+    purchase_order_id UUID REFERENCES public.purchase_orders(id),
+    company_id UUID REFERENCES public.companies(id),
+    project_id UUID REFERENCES public.projects(id),
+    received_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    inspected_by TEXT,
+    status TEXT DEFAULT 'Received' CHECK (status IN ('Draft', 'Received', 'Partially Accepted', 'Accepted', 'Rejected', 'Closed')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(organization_id, grn_number)
+);
+
+CREATE TABLE IF NOT EXISTS public.grn_line_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    grn_id UUID REFERENCES public.grn(id) ON DELETE CASCADE NOT NULL,
+    po_line_item_id UUID REFERENCES public.po_line_items(id),
+    inventory_item_id UUID REFERENCES public.inventory_items(id),
+    sku TEXT,
+    description TEXT NOT NULL,
+    ordered_qty NUMERIC DEFAULT 0.00,
+    received_qty NUMERIC NOT NULL CHECK (received_qty >= 0),
+    accepted_qty NUMERIC NOT NULL CHECK (accepted_qty >= 0 AND accepted_qty <= received_qty),
+    rejected_qty NUMERIC GENERATED ALWAYS AS (received_qty - accepted_qty) STORED,
+    unit_of_measure TEXT DEFAULT 'EA',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT accepted_le_received CHECK (accepted_qty <= received_qty)
+);
+
+-- 11. Inventory Movements (Audit Trail)
+CREATE TABLE IF NOT EXISTS public.inventory_movements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    inventory_item_id UUID REFERENCES public.inventory_items(id) ON DELETE CASCADE NOT NULL,
+    movement_type TEXT NOT NULL CHECK (movement_type IN ('IN', 'OUT', 'ADJUST', 'TRANSFER_IN', 'TRANSFER_OUT', 'RETURN', 'WRITE_OFF')),
+    quantity NUMERIC NOT NULL,
+    reference_type TEXT,
+    reference_id UUID,
+    reference_number TEXT,
+    unit_cost NUMERIC,
+    before_qty INTEGER,
+    after_qty INTEGER,
+    notes TEXT,
+    performed_by UUID REFERENCES public.profiles(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 12. Organization Audit Logs (Immutable)
+CREATE TABLE IF NOT EXISTS public.audit_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+    actor_id UUID REFERENCES public.profiles(id),
+    action TEXT NOT NULL,
+    resource_type TEXT NOT NULL,
+    resource_id UUID,
+    metadata JSONB DEFAULT '{}'::JSONB,
+    ip_address TEXT,
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Extend existing tables with new fields
+ALTER TABLE public.purchase_orders
+    ADD COLUMN IF NOT EXISTS project_id UUID REFERENCES public.projects(id),
+    ADD COLUMN IF NOT EXISTS expected_delivery_date DATE,
+    ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE public.invoices
+    ADD COLUMN IF NOT EXISTS project_id UUID REFERENCES public.projects(id),
+    ADD COLUMN IF NOT EXISTS purchase_order_id UUID REFERENCES public.purchase_orders(id),
+    ADD COLUMN IF NOT EXISTS amount_paid NUMERIC DEFAULT 0.00 CHECK (amount_paid >= 0),
+    ADD COLUMN IF NOT EXISTS balance_due NUMERIC GENERATED ALWAYS AS (total_amount - amount_paid) STORED,
+    ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS notes TEXT,
+    ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS partially_paid_at TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE public.invoices DROP CONSTRAINT IF EXISTS invoices_status_check;
+ALTER TABLE public.invoices ADD CONSTRAINT invoices_status_check CHECK (status IN ('Draft', 'Pending', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled', 'Void'));
+
+ALTER TABLE public.payments
+    ADD COLUMN IF NOT EXISTS project_id UUID REFERENCES public.projects(id),
+    ADD COLUMN IF NOT EXISTS invoice_id UUID REFERENCES public.invoices(id),
+    ADD COLUMN IF NOT EXISTS purchase_order_id UUID REFERENCES public.purchase_orders(id),
+    ADD COLUMN IF NOT EXISTS utr_number TEXT,
+    ADD COLUMN IF NOT EXISTS bank_reference TEXT,
+    ADD COLUMN IF NOT EXISTS failure_reason TEXT,
+    ADD COLUMN IF NOT EXISTS notes TEXT,
+    ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS settled_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS processed_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS failed_at TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_status_check;
+ALTER TABLE public.payments ADD CONSTRAINT payments_status_check CHECK (status IN ('Draft', 'Initiated', 'Processing', 'In Escrow', 'Settled', 'Failed', 'Cancelled', 'Reversed'));
+
+ALTER TABLE public.inventory_items
+    ADD COLUMN IF NOT EXISTS last_cost NUMERIC DEFAULT 0.00,
+    ADD COLUMN IF NOT EXISTS avg_cost NUMERIC DEFAULT 0.00,
+    ADD COLUMN IF NOT EXISTS unit_of_measure TEXT DEFAULT 'EA',
+    ADD COLUMN IF NOT EXISTS location TEXT,
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL;
+
+UPDATE public.inventory_items SET last_cost = unit_cost WHERE last_cost IS NULL OR last_cost = 0;
+UPDATE public.inventory_items SET avg_cost = unit_cost WHERE avg_cost IS NULL OR avg_cost = 0;
+
+-- Enable RLS on new tables
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.po_line_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.grn ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.grn_line_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inventory_movements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- Projects policies
+CREATE POLICY "Org members can read projects" ON public.projects FOR SELECT USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can insert projects" ON public.projects FOR INSERT WITH CHECK (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can update projects" ON public.projects FOR UPDATE USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can delete projects" ON public.projects FOR DELETE USING (organization_id = public.get_auth_organization_id());
+
+-- PO Line Items policies
+CREATE POLICY "Org members can read po line items" ON public.po_line_items FOR SELECT USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can manage po line items" ON public.po_line_items FOR ALL USING (organization_id = public.get_auth_organization_id()) WITH CHECK (organization_id = public.get_auth_organization_id());
+
+-- GRN policies
+CREATE POLICY "Org members can read grn" ON public.grn FOR SELECT USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can manage grn" ON public.grn FOR ALL USING (organization_id = public.get_auth_organization_id()) WITH CHECK (organization_id = public.get_auth_organization_id());
+
+-- GRN Line Items policies
+CREATE POLICY "Org members can read grn line items" ON public.grn_line_items FOR SELECT USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Org members can manage grn line items" ON public.grn_line_items FOR ALL USING (organization_id = public.get_auth_organization_id()) WITH CHECK (organization_id = public.get_auth_organization_id());
+
+-- Inventory movements policies (read for all members; write restricted to inventory/admin/owner)
+CREATE POLICY "Org members can read inventory movements" ON public.inventory_movements FOR SELECT USING (organization_id = public.get_auth_organization_id());
+CREATE POLICY "Inventory managers/admin/owner can insert movements" ON public.inventory_movements FOR INSERT
+    WITH CHECK (
+        organization_id = public.get_auth_organization_id() AND
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('owner', 'admin', 'inventory_manager'))
+    );
+
+-- Audit logs: read-only for finance/admin/owner
+CREATE POLICY "Finance/admin/owner can read audit logs" ON public.audit_logs FOR SELECT
+    USING (
+        organization_id = public.get_auth_organization_id() AND
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('owner', 'admin', 'finance'))
+    );
+CREATE POLICY "System can insert audit logs" ON public.audit_logs FOR INSERT
+    WITH CHECK (organization_id = public.get_auth_organization_id());
+
+-- Trigger to auto-update projects.updated_at
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER AS 
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_projects_updated_at ON public.projects;
+CREATE TRIGGER update_projects_updated_at
+    BEFORE UPDATE ON public.projects
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_inventory_items_updated_at ON public.inventory_items;
+CREATE TRIGGER update_inventory_items_updated_at
+    BEFORE UPDATE ON public.inventory_items
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_updated_at_column();
