@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { 
@@ -112,7 +112,7 @@ export function ProductShowcase() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="rounded-xl glass-panel p-4 border border-electric/15">
                     <div className="text-xs font-mono text-slate-textMuted">Inventory Value</div>
-                    <div className="text-2xl font-bold text-white">â‚¹3.84 Cr</div>
+                    <div className="text-2xl font-bold text-white">₹3.84 Cr</div>
                     <div className="flex items-center mt-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="ml-1 text-xs text-emerald-400">+12.4% MoM</span>
@@ -130,7 +130,7 @@ export function ProductShowcase() {
                   </div>
                   <div className="rounded-xl glass-panel p-4 border border-electric/15">
                     <div className="text-xs font-mono text-slate-textMuted">Cash Flow</div>
-                    <div className="text-2xl font-bold text-white">â‚¹1.24 Cr</div>
+                    <div className="text-2xl font-bold text-white">₹1.24 Cr</div>
                     <div className="flex items-center mt-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="ml-1 text-xs text-emerald-400">+8.2% MoM</span>
@@ -187,7 +187,7 @@ export function ProductShowcase() {
                     <div className="flex items-center justify-between p-4 rounded-xl bg-[#081020]/50 border border-electric/15">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-textMuted">Tata Steel Ltd</p>
-                        <p className="text-base font-semibold text-white">â‚¹54,80,000.00</p>
+                        <p className="text-base font-semibold text-white">₹54,80,000.00</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-400/20 flex items-center justify-center">
@@ -199,7 +199,7 @@ export function ProductShowcase() {
                     <div className="flex items-center justify-between p-4 rounded-xl bg-[#081020]/50 border border-electric/15">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-textMuted">UltraTech Cement</p>
-                        <p className="text-base font-semibold text-white">â‚¹32,40,000.00</p>
+                        <p className="text-base font-semibold text-white">₹32,40,000.00</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-amber-400/20 flex items-center justify-center">
@@ -211,7 +211,7 @@ export function ProductShowcase() {
                     <div className="flex items-center justify-between p-4 rounded-xl bg-[#081020]/50 border border-electric/15">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-textMuted">Lodha Developers</p>
-                        <p className="text-base font-semibold text-white">â‚¹84,50,000.00</p>
+                        <p className="text-base font-semibold text-white">₹84,50,000.00</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-400/20 flex items-center justify-center">

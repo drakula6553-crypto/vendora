@@ -229,7 +229,7 @@ export default function SignupPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••••••"
                       className="w-full bg-[#050B18]/80 border border-electric/20 focus:border-electric focus:ring-1 focus:ring-electric rounded-xl pl-11 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none font-mono"
                       required
                     />
@@ -253,7 +253,7 @@ export default function SignupPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••••••"
                       className="w-full bg-[#050B18]/80 border border-electric/20 focus:border-electric focus:ring-1 focus:ring-electric rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none font-mono"
                       required
                     />
@@ -407,10 +407,11 @@ export default function SignupPage() {
                       className="w-full bg-[#050B18]/80 border border-electric/25 rounded-xl px-4 py-2.5 text-sm text-white outline-none"
                       defaultValue="USD"
                     >
-                      <option value="USD">USD â€” United States Dollar ($)</option>
-                      <option value="EUR">EUR â€” Euro (â‚¬)</option>
-                      <option value="GBP">GBP â€” British Pound (Â£)</option>
-                      <option value="SGD">SGD â€” Singapore Dollar (S$)</option>
+                      <option value="INR">INR — Indian Rupee (₹)</option>
+                      <option value="USD">USD — United States Dollar ($)</option>
+                      <option value="EUR">EUR — Euro (€)</option>
+                      <option value="GBP">GBP — British Pound (£)</option>
+                      <option value="SGD">SGD — Singapore Dollar (S$)</option>
                     </select>
                   </div>
                 </div>
@@ -692,7 +693,7 @@ export default function SignupPage() {
 
       {/* Footer bar */}
       <div className="max-w-7xl mx-auto w-full text-center py-4 text-xs font-mono text-slate-500 relative z-10">
-        Secured by Supabase PostgreSQL RLS â€¢ No administrative elevation allowed via public registration
+        Secured by Supabase PostgreSQL RLS • No administrative elevation allowed via public registration
       </div>
     </div>
   );

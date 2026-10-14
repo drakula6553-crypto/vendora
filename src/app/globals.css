@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #040912;
-  --foreground: #F8FAFC;
+  --background: #030712;
+  --foreground: #F9FAFB;
 }
 
 * {
@@ -17,31 +17,34 @@ html {
 }
 
 body {
-  background-color: #040912;
-  color: #F8FAFC;
+  background-color: #030712;
+  color: #F9FAFB;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Custom modern scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #040912;
+  background: #030712;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #081020;
-  border: 1px solid rgba(79, 140, 255, 0.2);
-  border-radius: 4px;
+  background: #0F172A;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1F4E9A;
+  background: #2563EB;
 }
 
 @layer components {

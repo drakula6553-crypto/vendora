@@ -153,7 +153,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <div className="text-xs text-slate-textMuted">
-                        Requested by {item.requester} â€¢ {item.date}
+                        Requested by {item.requester} • {item.date}
                       </div>
                     </div>
 

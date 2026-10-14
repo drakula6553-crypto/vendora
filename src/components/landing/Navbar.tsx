@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-4 bg-[#040912]/95 backdrop-blur-xl border-b border-[rgba(58,123,255,0.15)] shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+          ? 'py-4 bg-[#030712]/90 backdrop-blur-xl border-b border-electric/15 shadow-[0_10px_30px_rgba(0,0,0,0.6)]'
           : 'py-6 bg-transparent'
       }`}
     >

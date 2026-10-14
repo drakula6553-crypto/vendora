@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -172,7 +172,7 @@ export function EcosystemSection() {
       subtitle: 'Multi-Rail Builder Liquidity Engine',
       description: 'Track incoming builder RA bill collections and outgoing primary steel/cement mill wire releases via RTGS, NEFT & IMPS.',
       href: '/payments',
-      metric: 'â‚¹4.82 Cr Cleared 30d',
+      metric: '₹4.82 Cr Cleared 30d',
       metricLabel: 'Net Transaction Volume',
       tag: 'MODULE 03',
       features: [
