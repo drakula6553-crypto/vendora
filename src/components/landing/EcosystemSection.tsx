@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -48,8 +48,8 @@ function TiltFeatureCard({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotX = ((y - centerY) / centerY) * -7;
-    const rotY = ((x - centerX) / centerX) * 7;
+    const rotX = ((y - centerY) / centerY) * -10;
+    const rotY = ((x - centerX) / centerX) * 10;
 
     setRotateX(rotX);
     setRotateY(rotY);
@@ -68,49 +68,49 @@ function TiltFeatureCard({
         transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
         transition: 'transform 0.15s ease-out',
       }}
-      className="relative rounded-2xl glass-panel p-7 border border-electric/20 hover:border-electric/50 hover:shadow-[0_15px_40px_rgba(79,140,255,0.18)] flex flex-col justify-between group overflow-hidden"
+      className="relative rounded-2xl glass-panel p-8 border border-electric/20 hover:border-electric/50 hover:shadow-[0_20px_50px_rgba(79,140,255,0.2)] flex flex-col justify-between group overflow-hidden"
     >
       {/* Background glow spot */}
-      <div className="absolute top-0 right-0 w-36 h-36 bg-electric/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-500 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-40 h-40 bg-electric/10 rounded-full blur-3xl group-hover:scale-130 transition-transform duration-500 pointer-events-none" />
 
       <div>
         {/* Header with Icon and Tag */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="w-13 h-13 p-3 rounded-xl bg-electric/10 text-electric border border-electric/25 group-hover:border-electric/60 group-hover:bg-electric/20 transition-all">
-            <Icon className="w-6 h-6" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-14 h-14 p-4 rounded-xl bg-electric/10 text-electric border border-electric/25 group-hover:border-electric/60 group-hover:bg-electric/20 transition-all">
+            <Icon className="w-7 h-7" />
           </div>
-          <span className="text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded bg-[#0A192F] border border-electric/20 text-slate-textMuted group-hover:text-electric transition-colors">
+          <span className="text-[10px] font-mono tracking-wider uppercase px-3 py-1.5 rounded bg-[#081020] border border-electric/20 text-slate-textMuted group-hover:text-electric transition-colors">
             {tag}
           </span>
         </div>
 
         {/* Title and descriptions */}
-        <h3 className="text-xl font-bold text-white mb-1 group-hover:text-electric transition-colors">
+        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-electric transition-colors">
           {title}
         </h3>
-        <p className="text-xs font-mono text-gold mb-3">{subtitle}</p>
+        <p className="text-xs font-mono text-gold mb-4">{subtitle}</p>
         <p className="text-sm text-slate-textSecondary leading-relaxed mb-6">
           {description}
         </p>
 
         {/* Live Metric Badge */}
-        <div className="p-3 rounded-xl bg-[#050B18]/70 border border-electric/15 mb-6">
-          <div className="text-[11px] font-mono uppercase text-slate-textMuted tracking-wider mb-0.5">
+        <div className="p-4 rounded-xl bg-[#040912]/80 border border-electric/15 mb-6">
+          <div className="text-[11px] font-mono uppercase text-slate-textMuted tracking-wider mb-1">
             {metricLabel}
           </div>
-          <div className="text-lg font-bold text-white font-mono flex items-center justify-between">
+          <div className="text-xl font-bold text-white font-mono flex items-center justify-between">
             <span>{metric}</span>
             <span className="text-xs text-emerald-400 font-sans font-medium flex items-center">
-              Active <TrendingUp className="w-3 h-3 ml-1" />
+              Active <TrendingUp className="w-3.5 h-3.5" />
             </span>
           </div>
         </div>
 
         {/* Bullet features */}
-        <ul className="space-y-2 mb-6">
+        <ul className="space-y-3 mb-6">
           {features.map((feat, i) => (
-            <li key={i} className="flex items-center gap-2 text-xs text-slate-textMuted">
-              <Check className="w-3.5 h-3.5 text-electric flex-shrink-0" />
+            <li key={i} className="flex items-center gap-3 text-xs text-slate-textMuted">
+              <Check className="w-4 h-4 text-electric flex-shrink-0" />
               <span>{feat}</span>
             </li>
           ))}
@@ -172,90 +172,85 @@ export function EcosystemSection() {
       subtitle: 'Multi-Rail Builder Liquidity Engine',
       description: 'Track incoming builder RA bill collections and outgoing primary steel/cement mill wire releases via RTGS, NEFT & IMPS.',
       href: '/payments',
-      metric: '₹4.82 Cr Cleared 30d',
+      metric: 'â‚¹4.82 Cr Cleared 30d',
       metricLabel: 'Net Transaction Volume',
       tag: 'MODULE 03',
       features: [
         'Split payment disbursements for dumper haulers',
         'RBI RTGS transaction UTR confirmation hooks',
-        'Real-time builder site reconciliation status',
+        'Automated NEFT/IMPS clearing with bank validation',
+        'Escrow management for milestone-based payments',
       ],
     },
     {
       icon: CalendarClock,
-      title: 'Payment Scheduling',
-      subtitle: 'Predictive Cash Flow Dispatch',
-      description: 'Schedule payouts to rolling mills and quarries based on builder milestone collections to protect working capital float.',
+      title: 'Payment Scheduler & Cash Flow',
+      subtitle: '30-Day Outflow Timeline & Predictive Analytics',
+      description: 'Forecast cash inflows/outflows, schedule automated payouts, and model liquidity scenarios for builder milestone payments.',
       href: '/payment-scheduler',
-      metric: '₹1.50 Cr Scheduled Obligations',
-      metricLabel: 'Scheduled Payables Matrix',
+      metric: '92% On-Time Payments',
+      metricLabel: 'Payment Schedule Adherence',
       tag: 'MODULE 04',
       features: [
-        'Interactive timeline for steel mill LC and wire maturities',
-        'Batch auto-approval rules for vetted dumper fleets',
-        'Early-settlement cash discount capture on bulk cement',
+        'Automated payment scheduling based on invoice due dates',
+        'Scenario modeling for cash runway extension',
+        'Builder milestone tracking with conditional payouts',
+        'Bank holiday and weekend adjustment algorithms',
       ],
     },
     {
       icon: FileText,
-      title: 'Invoices & Weighbridge Matching',
-      subtitle: '2-Way Automated Slip Reconciliation',
-      description: 'Generate legally binding purchase orders, ingest builder RA bills, and automatically match weighbridge delivery challans.',
+      title: 'Invoices & Purchase Orders',
+      subtitle: 'Two/Three-Way Matching & Reconciliation',
+      description: 'Match POs, GRNs, and invoices with automated discrepancy detection and resolution workflows.',
       href: '/invoices',
-      metric: '100% Matching Accuracy',
-      metricLabel: 'Discrepancy Defense',
+      metric: '98% Match Accuracy',
+      metricLabel: 'Reconciliation Success Rate',
       tag: 'MODULE 05',
       features: [
-        'Automated PO-to-Weighbridge challan matching',
-        'Printable tax invoice & payment voucher exports',
-        'Digital signature & site engineer approval trails',
+        'Three-way match (PO + GRN + Invoice) automation',
+        'Real-time discrepancy flagging for quantities/pricing',
+        'Automated GRN generation from weighbridge data',
+        'Partial payment tracking with balance due calculations',
       ],
     },
     {
       icon: BarChart3,
-      title: 'Cash Flow & Working Capital',
-      subtitle: 'Executive Financial Terminal',
-      description: 'Real-time runway indicators, burn rates, working capital indices, and automated executive financial reporting in INR (₹).',
-      href: '/cash-flow',
-      metric: '24.2 Months Runway',
-      metricLabel: 'Liquidity Health Index',
+      title: 'Analytics & Reporting',
+      subtitle: 'Real-Time Dashboards & Predictive Insights',
+      description: 'Monitor key performance indicators, track working capital, and forecast cash flow with AI-powered models.',
+      href: '/analytics',
+      metric: '15+ Live Dashboards',
+      metricLabel: 'Active Monitoring Views',
       tag: 'MODULE 06',
       features: [
-        'Forward scenario projections for Net-30 vs Net-45 RA bills',
-        'Receivable vs Payable curve graphs for builder projects',
-        'One-click CFO bank statement & general ledger exports',
+        'Working capital optimization recommendations',
+        'Predictive cash flow modeling with confidence intervals',
+        'Builder performance scoring & risk assessment',
+        'Custom report builder with scheduled exports',
       ],
     },
   ];
 
   return (
-    <section id="features" className="py-24 relative overflow-hidden bg-[#070E1E]">
-      {/* Background Grid & Light */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-electric/10 rounded-full blur-[160px] pointer-events-none" />
+    <section id="features" className="py-24 relative overflow-hidden bg-midnight">
+      {/* Background elements */}
+      <div className="absolute top-0 left-0 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-electric/5 rounded-full blur-[200px] pointer-events-none" />
+      <div className="absolute right-0 bottom-0 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-gold/5 rounded-full blur-[150px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-electric/10 border border-electric/30 text-electric text-xs font-mono uppercase tracking-wider mb-4">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Unified Architectural Stack
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-5">
-            Every Business Workflow.{' '}
-            <span className="bg-gradient-to-r from-electric to-gold bg-clip-text text-transparent">
-              Connected.
-            </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            The VENDORA Ecosystem
           </h2>
-          <p className="text-base sm:text-lg text-slate-textSecondary leading-relaxed">
-            Eliminate silos between inventory, banking rails, and partner relationships.
-            VENDORA weaves your daily operations into a synchronized intelligent system.
+          <p className="text-sm text-slate-textMuted mt-4 max-w-xl mx-auto">
+            Six interconnected modules working in harmony to manage your entire raw material supply chain &#8211; from quarry to builder payment.
           </p>
         </div>
 
-        {/* 6 Feature Cards Grid with 3D Tilt */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-          {modules.map((mod, idx) => (
-            <TiltFeatureCard key={idx} {...mod} />
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+          {modules.map((module) => (
+            <TiltFeatureCard key={module.title} {...module} />
           ))}
         </div>
       </div>

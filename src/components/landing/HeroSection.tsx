@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -37,7 +37,7 @@ export function HeroSection() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span>
             </span>
             <span className="text-xs font-mono font-medium tracking-wider text-slate-textSecondary uppercase">
-              VENDORA 2.0 • Raw Materials & Builder Supply OS
+              VENDORA 2.0 &#8226; Raw Materials & Builder Supply OS
             </span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-textMuted" />
           </div>
@@ -47,13 +47,13 @@ export function HeroSection() {
         <div className="text-center max-w-4xl mx-auto mb-8">
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] mb-6">
             Your Entire Business.{' '}
-            <span className="bg-gradient-to-r from-electric via-white to-gold bg-clip-text text-transparent">
+            <span className="text-premium">
               One Intelligent Platform.
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-textSecondary max-w-2xl mx-auto leading-relaxed">
-            Supply TMT steel, ready-mix concrete, cement & aggregates to leading builders. Manage stockyards, weighbridge challans, builder RA bills, and multi-rail settlements — all from one powerful workspace.
+            Supply TMT steel, ready-mix concrete, cement & aggregates to leading builders. Manage stockyards, weighbridge challans, builder RA bills, and multi-rail settlements &#8211; all from one powerful workspace.
           </p>
         </div>
 
@@ -80,14 +80,14 @@ export function HeroSection() {
         <div className="flex items-center justify-center gap-2 text-xs text-slate-textMuted font-medium mb-4">
           <ShieldCheck className="w-4 h-4 text-electric" />
           <span>One workspace. Complete business visibility.</span>
-          <span className="mx-2 text-slate-700">•</span>
+          <span className="mx-2 text-slate-700">&#8226;</span>
           <span>Zero third-party spreadsheets required</span>
         </div>
 
         {/* Main 3D Motion Graphics Container */}
         <div className="relative w-full mt-2 rounded-2xl glass-panel-elevated overflow-hidden border border-electric/20">
           {/* Subtle status bar on top of the 3D canvas */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-electric/15 bg-[#0A192F]/60 text-xs font-mono text-slate-textMuted">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-electric/15 bg-[#081020]/60 text-xs font-mono text-slate-textMuted">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-white font-medium">LIVE BUSINESS TELEMETRY</span>

@@ -1,17 +1,17 @@
-import React from 'react';
-import Link from 'next/link';
+﻿import React from "react";
+import Link from "next/link";
 
 interface LogoProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   showTagline?: boolean;
   className?: string;
 }
 
-export function Logo({ size = 'md', showTagline = false, className = '' }: LogoProps) {
+export function Logo({ size = "md", showTagline = false, className = "" }: LogoProps) {
   const sizes = {
-    sm: { icon: 26, text: 'text-lg', dot: 'w-1.5 h-1.5' },
-    md: { icon: 34, text: 'text-2xl', dot: 'w-2 h-2' },
-    lg: { icon: 44, text: 'text-3xl', dot: 'w-2.5 h-2.5' },
+    sm: { icon: 26, text: "text-lg", dot: "w-1.5 h-1.5" },
+    md: { icon: 34, text: "text-2xl", dot: "w-2 h-2" },
+    lg: { icon: 44, text: "text-3xl", dot: "w-2.5 h-2.5" },
   };
 
   const current = sizes[size];
@@ -30,13 +30,13 @@ export function Logo({ size = 'md', showTagline = false, className = '' }: LogoP
         >
           <defs>
             <linearGradient id="vendora-electric" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#4F8CFF" />
-              <stop offset="100%" stopColor="#1C4EB8" />
+              <stop offset="0%" stopColor="#3A7BFF" />
+              <stop offset="100%" stopColor="#1F4E9A" />
             </linearGradient>
             <linearGradient id="vendora-gold" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#F5DF87" />
-              <stop offset="50%" stopColor="#D4AF37" />
-              <stop offset="100%" stopColor="#9D7D1E" />
+              <stop offset="50%" stopColor="#CE9B18" />
+              <stop offset="100%" stopColor="#7D5E0F" />
             </linearGradient>
             <filter id="core-glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3" result="blur" />
@@ -50,7 +50,7 @@ export function Logo({ size = 'md', showTagline = false, className = '' }: LogoP
             stroke="url(#vendora-electric)"
             strokeWidth="1.75"
             strokeLinejoin="round"
-            className="opacity-70 group-hover:opacity-100 transition-opacity"
+            className="opacity-80 group-hover:opacity-100 transition-opacity"
           />
 
           {/* Golden interconnected diagonal chevron ('V') */}
@@ -64,33 +64,29 @@ export function Logo({ size = 'md', showTagline = false, className = '' }: LogoP
           />
 
           {/* Center luminous nexus node */}
-          <circle cx="24" cy="24" r="3.5" fill="#4F8CFF" filter="url(#core-glow)" />
+          <circle cx="24" cy="24" r="3.5" fill="#3A7BFF" filter="url(#core-glow)" />
           <circle cx="24" cy="24" r="1.5" fill="#FFFFFF" />
 
           {/* Peripheral connection nodes */}
-          <circle cx="24" cy="4" r="2" fill="#D4AF37" />
-          <circle cx="42" cy="14" r="2" fill="#4F8CFF" />
-          <circle cx="42" cy="34" r="2" fill="#D4AF37" />
-          <circle cx="24" cy="44" r="2" fill="#4F8CFF" />
-          <circle cx="6" cy="34" r="2" fill="#D4AF37" />
-          <circle cx="6" cy="14" r="2" fill="#4F8CFF" />
+          <circle cx="24" cy="4" r="2" fill="#CE9B18" />
+          <circle cx="42" cy="14" r="2" fill="#3A7BFF" />
+          <circle cx="42" cy="34" r="2" fill="#CE9B18" />
+          <circle cx="24" cy="44" r="2" fill="#3A7BFF" />
+          <circle cx="6" cy="34" r="2" fill="#CE9B18" />
+          <circle cx="6" cy="14" r="2" fill="#3A7BFF" />
         </svg>
 
         {/* Ambient background glow */}
         <div className="absolute inset-0 bg-electric/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-      </div>
 
-      <div className="flex flex-col">
-        <div className="flex items-center gap-1">
-          <span className={`font-semibold tracking-[0.16em] uppercase text-white ${current.text} font-sans`}>
-            VENDORA
-          </span>
-          <span className={`${current.dot} rounded-full bg-gold shadow-[0_0_8px_#D4AF37]`}></span>
-        </div>
+        {/* Optional tagline */}
         {showTagline && (
-          <span className="text-[10px] tracking-widest uppercase text-slate-textMuted font-mono">
-            Raw Materials & Builder Supply OS
-          </span>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+            <div className="flex items-center gap-1 text-[10px] font-mono text-slate-textMuted">
+              <span className="w-2 h-2 rounded-full bg-gold/20"></span>
+              <span>Raw Material Supply OS</span>
+            </div>
+          </div>
         )}
       </div>
     </Link>

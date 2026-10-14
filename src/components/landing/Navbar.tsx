@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-3.5 bg-[#050B18]/85 backdrop-blur-xl border-b border-[#4F8CFF]/15 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+          ? 'py-4 bg-[#040912]/95 backdrop-blur-xl border-b border-[rgba(58,123,255,0.15)] shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
           : 'py-6 bg-transparent'
       }`}
     >
@@ -105,7 +105,7 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0A192F]/95 backdrop-blur-2xl border-b border-electric/20 px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4">
+        <div className="md:hidden bg-[#081020]/95 backdrop-blur-2xl border-b border-electric/20 px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4">
           <nav className="flex flex-col space-y-3">
             {navLinks.map((item) => (
               <a

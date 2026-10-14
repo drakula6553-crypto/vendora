@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { Logo } from '../brand/Logo';
-import { ArrowRight, Lock, ShieldCheck, Mail, Globe, Sparkles } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { Logo } from "../brand/Logo";
+import { ArrowRight, Lock, ShieldCheck, Mail, Globe, Sparkles } from "lucide-react";
 
 export function FooterAndCTA() {
   return (
@@ -25,8 +25,8 @@ export function FooterAndCTA() {
               </div>
 
               <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-6">
-                Bring Your Entire Business{' '}
-                <span className="bg-gradient-to-r from-electric via-white to-gold bg-clip-text text-transparent">
+                Bring Your Entire Business{" "}
+                <span className="text-premium">
                   Into Focus.
                 </span>
               </h2>
@@ -55,7 +55,7 @@ export function FooterAndCTA() {
 
               <div className="mt-8 flex items-center justify-center gap-2 text-xs font-mono text-slate-textMuted">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Enterprise Supabase Auth • Multi-Tenant RLS Enabled</span>
+                <span>Enterprise Supabase Auth * Multi-Tenant RLS Enabled</span>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export function FooterAndCTA() {
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   Systems Operational
                 </span>
-                <span>•</span>
+                <span>*</span>
                 <span>v2.4.0-stable</span>
               </div>
             </div>
@@ -118,26 +118,37 @@ export function FooterAndCTA() {
                 Governance
               </h4>
               <ul className="space-y-2.5">
-                <li><span className="text-slate-400">Terms of Service</span></li>
-                <li><span className="text-slate-400">Privacy Policy</span></li>
-                <li><span className="text-slate-400">Security Architecture</span></li>
-                <li><span className="text-slate-400">Row Level Security Whitepaper</span></li>
-                <li><span className="text-slate-400">Audit Compliance Logs</span></li>
+                <li><a href="#terms" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#security" className="hover:text-white transition-colors">Security Compliance</a></li>
+                <li><a href="#contact" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#about" className="hover:text-white transition-colors">About Us</a></li>
+              </ul>
+            </div>
+
+            {/* Column 5: Community & Support */}
+            <div>
+              <h4 className="text-white font-mono uppercase font-bold tracking-wider mb-4 text-xs">
+                Community
+              </h4>
+              <ul className="space-y-2.5">
+                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog & Updates</Link></li>
+                <li><a href="https://discord.gg/vendora" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Discord Community</a></li>
+                <li><a href="https://twitter.com/vendora_hq" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                <li><a href="https://linkedin.com/company/vendora" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
               </ul>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px] font-mono">
-            <div>
-              Â© {new Date().getFullYear()} VENDORA TECHNOLOGIES. All rights reserved.
-            </div>
-            <div className="flex items-center gap-6">
-              <span>Secured by Supabase Auth</span>
-              <span>â€¢</span>
-              <span>PostgreSQL Multi-Tenant RLS</span>
-              <span>â€¢</span>
-              <span>React Three Fiber 3D</span>
+          {/* Bottom border and copyright */}
+          <div className="mt-12 pt-8 border-t border-[rgba(58,123,255,0.12)]">
+            <div className="flex flex-col items-center gap-4 text-xs font-mono text-slate-textMuted">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                &copy; {new Date().getFullYear()} VENDORA. All rights reserved.
+              </span>
+              <span>Made with heart for the builder community.</span>
             </div>
           </div>
         </div>
