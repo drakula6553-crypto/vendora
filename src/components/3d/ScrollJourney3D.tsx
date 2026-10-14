@@ -5,82 +5,363 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // -------------------------------------------------------------
-// Stage Telemetry Data
+// 1. Digital CAD / BIM Blueprint Coordinate Ground Plane
 // -------------------------------------------------------------
-interface MaterialNode {
-  id: string;
-  name: string;
-  phase: number; // 0 to 5
-  basePos: [number, number, number];
-  color: string;
-  emissive: string;
-  geometryType: 'rebar' | 'mixer' | 'silo' | 'shield';
+function CADBlueprintPlane() {
+  const gridRef = useRef<THREE.Group>(null!);
+
+  useFrame((state, delta) => {
+    if (gridRef.current) {
+      gridRef.current.position.y = -0.05;
+    }
+  });
+
+  return (
+    <group ref={gridRef} position={[0, -0.05, 0]}>
+      {/* Primary CAD Project Grid */}
+      <gridHelper args={[40, 40, '#00E5FF', '#1E293B']} />
+      
+      {/* Site Boundary / Runway Lines */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.06, 0]}>
+        <planeGeometry args={[42, 42]} />
+        <meshBasicMaterial color="#030712" />
+      </mesh>
+    </group>
+  );
 }
 
-const STAGE_NODES: MaterialNode[] = [
-  {
-    id: 'sourcing-steel',
-    name: 'TMT STEEL (Fe-550D)',
-    phase: 0,
-    basePos: [2.6, 0.5, 0],
-    color: '#F59E0B',
-    emissive: '#D97706',
-    geometryType: 'rebar',
-  },
-  {
-    id: 'fleet-rmc',
-    name: 'RMC TRANSIT MIXER',
-    phase: 1,
-    basePos: [-2.4, 1.2, 0.8],
-    color: '#00E5FF',
-    emissive: '#0284C7',
-    geometryType: 'mixer',
-  },
-  {
-    id: 'stockyard-silo',
-    name: 'CEMENT SILO MATRIX',
-    phase: 2,
-    basePos: [2.2, -1.2, -0.5],
-    color: '#3B82F6',
-    emissive: '#1D4ED8',
-    geometryType: 'silo',
-  },
-  {
-    id: 'match-audit',
-    name: '3-WAY MATCH VERIFIER',
-    phase: 3,
-    basePos: [-2.0, -1.0, 0.5],
-    color: '#10B981',
-    emissive: '#059669',
-    geometryType: 'shield',
-  },
-];
+// -------------------------------------------------------------
+// 2. High-Rise Structural Steel Frame (Skyscraper BIM Skeleton)
+// -------------------------------------------------------------
+function StructuralBIMTower({ progress }: { progress: number }) {
+  const towerGroup = useRef<THREE.Group>(null!);
+
+  // Generate structural steel columns, girders, and diagonal trusses
+  const { columnPositions, girderPositions, bracePositions } = useMemo(() => {
+    const colPos: number[] = [];
+    const girPos: number[] = [];
+    const brcPos: number[] = [];
+
+    // 4x4 Column Grid (16 columns across the building footprint)
+    const xs = [-3.0, -1.0, 1.0, 3.0];
+    const zs = [-3.0, -1.0, 1.0, 3.0];
+    const floors = 7;
+    const floorHeight = 1.4;
+    const totalHeight = floors * floorHeight;
+
+    // Vertical Columns
+    xs.forEach((x) => {
+      zs.forEach((z) => {
+        colPos.push(x, 0, z);
+        colPos.push(x, totalHeight, z);
+      });
+    });
+
+    // Horizontal Floor Girders
+    for (let f = 1; f <= floors; f++) {
+      const y = f * floorHeight;
+      // X-direction girders
+      for (let zi = 0; zi < zs.length; zi++) {
+        for (let xi = 0; xi < xs.length - 1; xi++) {
+          girPos.push(xs[xi], y, zs[zi]);
+          girPos.push(xs[xi + 1], y, zs[zi]);
+        }
+      }
+      // Z-direction girders
+      for (let xi = 0; xi < xs.length; xi++) {
+        for (let zi = 0; zi < zs.length - 1; zi++) {
+          girPos.push(xs[xi], y, zs[zi]);
+          girPos.push(xs[xi], y, zs[zi + 1]);
+        }
+      }
+      // Diagonal X-braces on perimeter bays
+      for (let xi = 0; xi < xs.length - 1; xi++) {
+        const yBottom = (f - 1) * floorHeight;
+        // Front face (z = max)
+        const zFront = zs[zs.length - 1];
+        brcPos.push(xs[xi], yBottom, zFront);
+        brcPos.push(xs[xi + 1], y, zFront);
+        brcPos.push(xs[xi + 1], yBottom, zFront);
+        brcPos.push(xs[xi], y, zFront);
+
+        // Back face (z = min)
+        const zBack = zs[0];
+        brcPos.push(xs[xi], yBottom, zBack);
+        brcPos.push(xs[xi + 1], y, zBack);
+        brcPos.push(xs[xi + 1], yBottom, zBack);
+        brcPos.push(xs[xi], y, zBack);
+      }
+    }
+
+    return {
+      columnPositions: new Float32Array(colPos),
+      girderPositions: new Float32Array(girPos),
+      bracePositions: new Float32Array(brcPos),
+    };
+  }, []);
+
+  useFrame((state, delta) => {
+    if (towerGroup.current) {
+      // Gentle subtle structural sway based on time and scroll
+      towerGroup.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.1) * 0.04 + progress * 0.2;
+    }
+  });
+
+  return (
+    <group ref={towerGroup} position={[0, 0, 0]}>
+      {/* Primary Steel Columns (Dark Titanium with Cyan Highlight) */}
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={columnPositions.length / 3}
+            array={columnPositions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#38BDF8" transparent opacity={0.35} />
+      </lineSegments>
+
+      {/* Horizontal Floor Beams / Girders */}
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={girderPositions.length / 3}
+            array={girderPositions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#00E5FF" transparent opacity={0.3} />
+      </lineSegments>
+
+      {/* Diagonal Structural X-Bracing */}
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={bracePositions.length / 3}
+            array={bracePositions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#F59E0B" transparent opacity={0.25} />
+      </lineSegments>
+
+      {/* Concrete Lift Core (Central Solid Column) */}
+      <mesh position={[0, 4.9, 0]}>
+        <boxGeometry args={[1.6, 9.8, 1.6]} />
+        <meshStandardMaterial
+          color="#0F172A"
+          roughness={0.9}
+          metalness={0.3}
+          wireframe
+          transparent
+          opacity={0.35}
+        />
+      </mesh>
+    </group>
+  );
+}
 
 // -------------------------------------------------------------
-// Cosmic Stardust Telemetry Field
+// 3. Construction Tower Crane with Rotating Lattice Jib
 // -------------------------------------------------------------
-function CosmicStardust() {
-  const count = 500;
+function ConstructionTowerCrane() {
+  const jibRef = useRef<THREE.Group>(null!);
+
+  useFrame((state, delta) => {
+    if (jibRef.current) {
+      // Slow realistic slewing rotation of the crane jib
+      jibRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.6 + 0.4;
+    }
+  });
+
+  return (
+    <group position={[0, 9.8, 0]}>
+      {/* Crane Mast (Vertical Tower Extension) */}
+      <mesh position={[0, 1.5, 0]}>
+        <boxGeometry args={[0.6, 3.0, 0.6]} />
+        <meshStandardMaterial
+          color="#F59E0B"
+          wireframe
+          transparent
+          opacity={0.5}
+          emissive="#D97706"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+
+      {/* Rotating Crane Top (Cabin, Jib & Counter-Jib) */}
+      <group ref={jibRef} position={[0, 3.0, 0]}>
+        {/* Horizontal Crane Jib (Long Reach Arm) */}
+        <mesh position={[3.5, 0.2, 0]}>
+          <boxGeometry args={[7.0, 0.4, 0.4]} />
+          <meshStandardMaterial
+            color="#F59E0B"
+            wireframe
+            transparent
+            opacity={0.6}
+            emissive="#D97706"
+            emissiveIntensity={0.4}
+          />
+        </mesh>
+
+        {/* Counter Jib (Rear Arm with Counterweight) */}
+        <mesh position={[-1.8, 0.2, 0]}>
+          <boxGeometry args={[3.6, 0.4, 0.4]} />
+          <meshStandardMaterial color="#F59E0B" wireframe transparent opacity={0.5} />
+        </mesh>
+        {/* Counterweight Block */}
+        <mesh position={[-3.2, -0.2, 0]}>
+          <boxGeometry args={[0.8, 0.6, 0.6]} />
+          <meshStandardMaterial color="#64748B" roughness={0.8} />
+        </mesh>
+
+        {/* Cable Hoist hanging from the Jib */}
+        <lineSegments position={[4.5, -1.2, 0]}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([0, 1.4, 0, 0, -1.4, 0])}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="#38BDF8" transparent opacity={0.7} />
+        </lineSegments>
+
+        {/* Crane Hook Block */}
+        <mesh position={[4.5, -2.6, 0]}>
+          <boxGeometry args={[0.25, 0.35, 0.25]} />
+          <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.8} />
+        </mesh>
+
+        {/* Aircraft Warning Red Light at Mast Top */}
+        <pointLight position={[0, 0.6, 0]} color="#EF4444" intensity={2} distance={5} />
+      </group>
+    </group>
+  );
+}
+
+// -------------------------------------------------------------
+// 4. Site Raw Material Depots (Bulk Cement Silos & TMT Rebar Stacks)
+// -------------------------------------------------------------
+function MaterialDepots() {
+  return (
+    <group>
+      {/* West Wing: Bulk Cement Silo Bank (Twin Vertical Cylinders) */}
+      <group position={[-6.0, 0, -1.5]}>
+        {/* Silo 1 */}
+        <mesh position={[0, 2.2, 0]}>
+          <cylinderGeometry args={[0.9, 0.9, 4.4, 16]} />
+          <meshStandardMaterial
+            color="#1E293B"
+            wireframe
+            transparent
+            opacity={0.35}
+            emissive="#0284C7"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+        {/* Silo 1 Cone Roof */}
+        <mesh position={[0, 4.8, 0]}>
+          <coneGeometry args={[0.9, 0.8, 16]} />
+          <meshStandardMaterial color="#334155" wireframe transparent opacity={0.4} />
+        </mesh>
+
+        {/* Silo 2 */}
+        <mesh position={[2.2, 2.2, 0]}>
+          <cylinderGeometry args={[0.9, 0.9, 4.4, 16]} />
+          <meshStandardMaterial
+            color="#1E293B"
+            wireframe
+            transparent
+            opacity={0.35}
+            emissive="#0284C7"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+        {/* Silo 2 Cone Roof */}
+        <mesh position={[2.2, 4.8, 0]}>
+          <coneGeometry args={[0.9, 0.8, 16]} />
+          <meshStandardMaterial color="#334155" wireframe transparent opacity={0.4} />
+        </mesh>
+      </group>
+
+      {/* East Wing: TMT Steel Rebar Stacks on Site Dunnage */}
+      <group position={[6.0, 0.3, -1.0]}>
+        <mesh position={[0, 0.3, 0]}>
+          <boxGeometry args={[4.2, 0.6, 1.8]} />
+          <meshStandardMaterial
+            color="#334155"
+            wireframe
+            transparent
+            opacity={0.35}
+            emissive="#D97706"
+            emissiveIntensity={0.25}
+          />
+        </mesh>
+        <mesh position={[0, 0.8, 0]}>
+          <boxGeometry args={[3.6, 0.5, 1.4]} />
+          <meshStandardMaterial
+            color="#F59E0B"
+            wireframe
+            transparent
+            opacity={0.4}
+            emissive="#D97706"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+      </group>
+
+      {/* Front: Digital Weighbridge Platform (Scale Pad at Site Gate) */}
+      <group position={[0, 0.05, 5.5]}>
+        <mesh position={[0, 0.05, 0]}>
+          <boxGeometry args={[3.2, 0.1, 7.0]} />
+          <meshStandardMaterial
+            color="#0F172A"
+            emissive="#00E5FF"
+            emissiveIntensity={0.25}
+            roughness={0.8}
+            wireframe
+          />
+        </mesh>
+        {/* Weighbridge Guide Rails */}
+        <mesh position={[-1.65, 0.25, 0]}>
+          <boxGeometry args={[0.1, 0.3, 7.0]} />
+          <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.4} />
+        </mesh>
+        <mesh position={[1.65, 0.25, 0]}>
+          <boxGeometry args={[0.1, 0.3, 7.0]} />
+          <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.4} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// -------------------------------------------------------------
+// 5. Ambient Welding Sparks & Atmospheric Construction Dust
+// -------------------------------------------------------------
+function WeldingSparks() {
+  const count = 350;
   const meshRef = useRef<THREE.Points>(null!);
 
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
     const cAmber = new THREE.Color('#F59E0B');
-    const cCyan = new THREE.Color('#00E5FF');
-    const cBlue = new THREE.Color('#2563EB');
+    const cWhite = new THREE.Color('#FFFFFF');
+    const cCyan = new THREE.Color('#38BDF8');
 
     for (let i = 0; i < count; i++) {
-      const radius = 4.0 + Math.random() * 10.0;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-
-      pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = radius * Math.cos(phi);
+      pos[i * 3] = (Math.random() - 0.5) * 22;
+      pos[i * 3 + 1] = Math.random() * 14;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 22;
 
       const r = Math.random();
-      const chosen = r > 0.65 ? cAmber : r > 0.35 ? cCyan : cBlue;
+      const chosen = r > 0.6 ? cAmber : r > 0.25 ? cCyan : cWhite;
       col[i * 3] = chosen.r;
       col[i * 3 + 1] = chosen.g;
       col[i * 3 + 2] = chosen.b;
@@ -90,8 +371,7 @@ function CosmicStardust() {
 
   useFrame((state, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.025;
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+      meshRef.current.rotation.y += delta * 0.015;
     }
   });
 
@@ -112,10 +392,10 @@ function CosmicStardust() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.065}
+        size={0.05}
         vertexColors
         transparent
-        opacity={0.65}
+        opacity={0.5}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
       />
@@ -124,227 +404,7 @@ function CosmicStardust() {
 }
 
 // -------------------------------------------------------------
-// Central Cyber-Industrial Nexus
-// -------------------------------------------------------------
-function CentralEngine({ progress }: { progress: number }) {
-  const outerCageRef = useRef<THREE.Mesh>(null!);
-  const innerRefractorRef = useRef<THREE.Mesh>(null!);
-  const pointLightRef = useRef<THREE.PointLight>(null!);
-
-  useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
-    const speed = 1.0 + progress * 2.5;
-
-    if (outerCageRef.current) {
-      outerCageRef.current.rotation.y += delta * 0.3 * speed;
-      outerCageRef.current.rotation.x = Math.sin(t * 0.4) * 0.15;
-      outerCageRef.current.rotation.z = Math.cos(t * 0.3) * 0.15;
-    }
-
-    if (innerRefractorRef.current) {
-      innerRefractorRef.current.rotation.y -= delta * 0.4 * speed;
-      innerRefractorRef.current.rotation.z += delta * 0.2;
-      const pulse = 1.0 + Math.sin(t * 2.5) * 0.08 + progress * 0.2;
-      innerRefractorRef.current.scale.set(pulse, pulse, pulse);
-    }
-
-    if (pointLightRef.current) {
-      pointLightRef.current.intensity = 4.0 + Math.sin(t * 3.0) * 1.5 + progress * 4;
-    }
-  });
-
-  return (
-    <group position={[0, 0, 0]}>
-      {/* Outer Golden Wireframe Exoskeleton */}
-      <mesh ref={outerCageRef}>
-        <icosahedronGeometry args={[1.5, 2]} />
-        <meshStandardMaterial
-          color="#F59E0B"
-          wireframe
-          transparent
-          opacity={0.5}
-          emissive="#D97706"
-          emissiveIntensity={0.5}
-          roughness={0.15}
-          metalness={0.95}
-        />
-      </mesh>
-
-      {/* Inner Electric Cyan Refractive Core */}
-      <mesh ref={innerRefractorRef}>
-        <octahedronGeometry args={[1.05, 1]} />
-        <meshPhysicalMaterial
-          color="#030A18"
-          emissive="#00E5FF"
-          emissiveIntensity={0.7}
-          roughness={0.1}
-          metalness={0.9}
-          transmission={0.4}
-          thickness={1.0}
-          clearcoat={1.0}
-          clearcoatRoughness={0.1}
-        />
-      </mesh>
-
-      {/* Radiant Nexus Lights */}
-      <pointLight ref={pointLightRef} color="#00E5FF" intensity={5} distance={10} />
-      <pointLight color="#F59E0B" intensity={3} distance={6} position={[0, 0.8, 0]} />
-    </group>
-  );
-}
-
-// -------------------------------------------------------------
-// Dynamic Orbital Telemetry Rings
-// -------------------------------------------------------------
-function OrbitalRings({ progress }: { progress: number }) {
-  const g1 = useRef<THREE.Group>(null!);
-  const g2 = useRef<THREE.Group>(null!);
-  const g3 = useRef<THREE.Group>(null!);
-
-  useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
-    const factor = 1 + progress * 2.0;
-
-    if (g1.current) {
-      g1.current.rotation.z += delta * 0.25 * factor;
-      g1.current.rotation.x = 1.1 + Math.sin(t * 0.4) * 0.08 + progress * 0.5;
-    }
-    if (g2.current) {
-      g2.current.rotation.z -= delta * 0.18 * factor;
-      g2.current.rotation.y = 0.6 + Math.cos(t * 0.5) * 0.08;
-    }
-    if (g3.current) {
-      g3.current.rotation.x += delta * 0.12 * factor;
-      g3.current.rotation.z = Math.sin(t * 0.3) * 0.1;
-    }
-  });
-
-  return (
-    <group>
-      <group ref={g1}>
-        <mesh>
-          <torusGeometry args={[2.3, 0.015, 16, 120]} />
-          <meshBasicMaterial color="#00E5FF" transparent opacity={0.6} />
-        </mesh>
-      </group>
-      <group ref={g2}>
-        <mesh>
-          <torusGeometry args={[2.7, 0.012, 16, 120]} />
-          <meshBasicMaterial color="#F59E0B" transparent opacity={0.45} />
-        </mesh>
-      </group>
-      <group ref={g3}>
-        <mesh>
-          <torusGeometry args={[3.15, 0.01, 16, 120]} />
-          <meshBasicMaterial color="#3B82F6" transparent opacity={0.3} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-// -------------------------------------------------------------
-// Interactive Material Satellites
-// -------------------------------------------------------------
-function MaterialSatellite({
-  node,
-  progress,
-}: {
-  node: MaterialNode;
-  progress: number;
-}) {
-  const groupRef = useRef<THREE.Group>(null!);
-  const meshRef = useRef<THREE.Mesh>(null!);
-
-  useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
-    // Expansion of nodes as user scrolls
-    const expansion = 1 + progress * 0.4;
-    const floatY = Math.sin(t * 1.5 + node.phase) * 0.15;
-
-    if (groupRef.current) {
-      groupRef.current.position.set(
-        node.basePos[0] * expansion,
-        node.basePos[1] * expansion + floatY,
-        node.basePos[2] * expansion
-      );
-    }
-
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.6;
-      meshRef.current.rotation.y += delta * 0.8;
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <mesh ref={meshRef}>
-        {node.geometryType === 'rebar' && <cylinderGeometry args={[0.22, 0.22, 0.6, 8]} />}
-        {node.geometryType === 'mixer' && <octahedronGeometry args={[0.32, 0]} />}
-        {node.geometryType === 'silo' && <dodecahedronGeometry args={[0.3, 0]} />}
-        {node.geometryType === 'shield' && <boxGeometry args={[0.36, 0.36, 0.36]} />}
-
-        <meshStandardMaterial
-          color={node.color}
-          emissive={node.emissive}
-          emissiveIntensity={0.65}
-          metalness={0.9}
-          roughness={0.2}
-          wireframe={node.geometryType === 'rebar'}
-        />
-      </mesh>
-      <pointLight color={node.color} intensity={1.5} distance={3} />
-    </group>
-  );
-}
-
-// -------------------------------------------------------------
-// Dynamic Telemetry Energy Connectors
-// -------------------------------------------------------------
-function EnergyConnectors({ progress }: { progress: number }) {
-  const lineRef = useRef<THREE.LineSegments>(null!);
-  const linePositions = useMemo(() => new Float32Array(STAGE_NODES.length * 6), []);
-
-  useFrame(() => {
-    const expansion = 1 + progress * 0.4;
-
-    STAGE_NODES.forEach((node, idx) => {
-      linePositions[idx * 6] = 0;
-      linePositions[idx * 6 + 1] = 0;
-      linePositions[idx * 6 + 2] = 0;
-
-      linePositions[idx * 6 + 3] = node.basePos[0] * expansion;
-      linePositions[idx * 6 + 4] = node.basePos[1] * expansion;
-      linePositions[idx * 6 + 5] = node.basePos[2] * expansion;
-    });
-
-    if (lineRef.current) {
-      lineRef.current.geometry.attributes.position.needsUpdate = true;
-    }
-  });
-
-  return (
-    <lineSegments ref={lineRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={STAGE_NODES.length * 2}
-          array={linePositions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial
-        color="#00E5FF"
-        transparent
-        opacity={0.3 + progress * 0.3}
-        blending={THREE.AdditiveBlending}
-      />
-    </lineSegments>
-  );
-}
-
-// -------------------------------------------------------------
-// Camera Rig: Multi-Phase Journey Controller
+// 6. Camera Rig: Ascending Skyscraper Construction Journey
 // -------------------------------------------------------------
 function CameraRig({
   progress,
@@ -356,56 +416,25 @@ function CameraRig({
   const { camera } = useThree();
 
   useFrame((state, delta) => {
-    // 5 Story Phase Coordinates
-    // Phase 0 (0.0): Sourcing Hero [0, 0, 7.2]
-    // Phase 1 (0.25): Fleet Telemetry [2.2, 0.8, 5.4]
-    // Phase 2 (0.50): Stockyards [-2.0, -0.6, 5.0]
-    // Phase 3 (0.75): 3-Way Match [0, -1.5, 4.4]
-    // Phase 4 (1.0): Enterprise OS [0, 0, 8.2]
+    // Cinematic camera travel:
+    // Ground level (progress 0) -> Ascending past steel floors (progress 0.5) -> Top Crane oversight (progress 1.0)
+    const targetY = 3.0 + progress * 6.5;
+    const targetZ = 12.0 - progress * 2.0;
+    const targetX = Math.sin(progress * Math.PI * 1.5) * 3.5 + mousePos.x * 0.8;
 
-    let targetX = 0;
-    let targetY = 0;
-    let targetZ = 7.2;
+    camera.position.x = THREE.MathUtils.damp(camera.position.x, targetX, 2.5, delta);
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY + mousePos.y * 0.5, 2.5, delta);
+    camera.position.z = THREE.MathUtils.damp(camera.position.z, targetZ, 2.5, delta);
 
-    if (progress < 0.25) {
-      const p = progress / 0.25;
-      targetX = THREE.MathUtils.lerp(0, 2.0, p);
-      targetY = THREE.MathUtils.lerp(0, 0.7, p);
-      targetZ = THREE.MathUtils.lerp(7.2, 5.5, p);
-    } else if (progress < 0.5) {
-      const p = (progress - 0.25) / 0.25;
-      targetX = THREE.MathUtils.lerp(2.0, -1.8, p);
-      targetY = THREE.MathUtils.lerp(0.7, -0.6, p);
-      targetZ = THREE.MathUtils.lerp(5.5, 5.1, p);
-    } else if (progress < 0.75) {
-      const p = (progress - 0.5) / 0.25;
-      targetX = THREE.MathUtils.lerp(-1.8, 0, p);
-      targetY = THREE.MathUtils.lerp(-0.6, -1.4, p);
-      targetZ = THREE.MathUtils.lerp(5.1, 4.5, p);
-    } else {
-      const p = (progress - 0.75) / 0.25;
-      targetX = THREE.MathUtils.lerp(0, 0, p);
-      targetY = THREE.MathUtils.lerp(-1.4, 0, p);
-      targetZ = THREE.MathUtils.lerp(4.5, 8.2, p);
-    }
-
-    // Add mouse parallax
-    const finalX = targetX + mousePos.x * 0.6;
-    const finalY = targetY + mousePos.y * 0.4;
-    const finalZ = targetZ;
-
-    camera.position.x = THREE.MathUtils.damp(camera.position.x, finalX, 3.5, delta);
-    camera.position.y = THREE.MathUtils.damp(camera.position.y, finalY, 3.5, delta);
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, finalZ, 3.5, delta);
-
-    camera.lookAt(0, targetY * 0.3, 0);
+    // Look at center of current building elevation
+    camera.lookAt(0, targetY * 0.6, 0);
   });
 
   return null;
 }
 
 // -------------------------------------------------------------
-// Exported Component: Fixed Full-Bleed 3D Scroll Journey Engine
+// Main Component: 3D Construction Site & Structural BIM Canvas
 // -------------------------------------------------------------
 export default function ScrollJourney3D() {
   const [progress, setProgress] = useState(0);
@@ -445,26 +474,33 @@ export default function ScrollJourney3D() {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {/* 3D WebGL Canvas */}
       <Canvas
-        camera={{ position: [0, 0, 7.2], fov: 38 }}
+        camera={{ position: [0, 3, 12], fov: 38 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       >
         <ambientLight intensity={0.4} />
-        <directionalLight position={[6, 8, 5]} intensity={0.8} color="#FFFFFF" />
-        <directionalLight position={[-6, -4, -3]} intensity={0.5} color="#00E5FF" />
-        <pointLight position={[0, -3, 2]} intensity={1.5} color="#F59E0B" distance={6} />
+        <directionalLight position={[10, 15, 10]} intensity={0.8} color="#FFFFFF" />
+        <directionalLight position={[-10, 5, -5]} intensity={0.5} color="#00E5FF" />
+        <pointLight position={[0, 6, 0]} intensity={2.0} color="#F59E0B" distance={15} />
 
         <CameraRig progress={progress} mousePos={mousePos} />
-        <CosmicStardust />
-        <CentralEngine progress={progress} />
-        <OrbitalRings progress={progress} />
-        <EnergyConnectors progress={progress} />
-
-        {STAGE_NODES.map((node) => (
-          <MaterialSatellite key={node.id} node={node} progress={progress} />
-        ))}
+        <CADBlueprintPlane />
+        <StructuralBIMTower progress={progress} />
+        <ConstructionTowerCrane />
+        <MaterialDepots />
+        <WeldingSparks />
       </Canvas>
+
+      {/* Central Dark Contrast Vignette Scrim (Ensures 100% Foreground Text Readability) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at 50% 50%, rgba(3,7,18,0.88) 0%, rgba(3,7,18,0.65) 55%, rgba(3,7,18,0.95) 100%)',
+        }}
+      />
     </div>
   );
 }
