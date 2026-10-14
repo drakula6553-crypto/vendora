@@ -1,42 +1,58 @@
-import { Navbar } from '@/components/landing/Navbar';
-import { HeroSection } from '@/components/landing/HeroSection';
-import { ProblemSection } from '@/components/landing/ProblemSection';
-import { EcosystemSection } from '@/components/landing/EcosystemSection';
-import { ProductShowcase } from '@/components/landing/ProductShowcase';
-import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { SecuritySection } from '@/components/landing/SecuritySection';
-import { PricingSection } from '@/components/landing/PricingSection';
-import { FooterAndCTA } from '@/components/landing/FooterAndCTA';
+'use client';
+
+import React from 'react';
+import dynamic from 'next/dynamic';
+import { CyberNavbar } from '@/components/landing/CyberNavbar';
+import { WaypointNavigator } from '@/components/landing/WaypointNavigator';
+import { Act01Sourcing } from '@/components/landing/journey/Act01Sourcing';
+import { Act02Telemetry } from '@/components/landing/journey/Act02Telemetry';
+import { Act03Stockyards } from '@/components/landing/journey/Act03Stockyards';
+import { Act04Reconciliation } from '@/components/landing/journey/Act04Reconciliation';
+import { Act05PlatformOS } from '@/components/landing/journey/Act05PlatformOS';
+import { Act06Terminal } from '@/components/landing/journey/Act06Terminal';
+
+// High-performance dynamic import for the 3D WebGL background engine
+const ScrollJourney3D = dynamic(
+  () => import('@/components/3d/ScrollJourney3D'),
+  { ssr: false }
+);
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-midnight text-foreground selection:bg-electric/30 selection:text-white">
-      {/* Floating Dynamic Navbar */}
-      <Navbar />
+    <div className="relative min-h-screen bg-[#030712] text-foreground selection:bg-cyan-500/30 selection:text-white overflow-x-hidden">
+      {/* Persistent Full-Screen Scroll-Driven 3D WebGL Engine */}
+      <ScrollJourney3D />
 
-      {/* Hero Section with Interactive 3D Motion Graphics */}
-      <HeroSection />
+      {/* Floating Cyber HUD Command Navigation */}
+      <CyberNavbar />
 
-      {/* The Problem Section */}
-      <ProblemSection />
+      {/* Vertical Interactive Waypoint Journey Tracker */}
+      <WaypointNavigator />
 
-      {/* The VENDORA Ecosystem */}
-      <EcosystemSection />
+      {/* Ambient Lighting Accents */}
+      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[160px] pointer-events-none -z-10" />
+      <div className="fixed bottom-0 right-1/4 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[160px] pointer-events-none -z-10" />
 
-      {/* Interactive Product Showcase */}
-      <ProductShowcase />
+      {/* The 6 Cinematic Journey Acts */}
+      <main className="relative z-10">
+        {/* Act 01: Raw Material Sourcing & Nexus */}
+        <Act01Sourcing />
 
-      {/* How It Works */}
-      <HowItWorksSection />
+        {/* Act 02: Fleet & Weighbridge Telemetry */}
+        <Act02Telemetry />
 
-      {/* Security and Trust */}
-      <SecuritySection />
+        {/* Act 03: Multi-Site Stockyard Inventory Matrix */}
+        <Act03Stockyards />
 
-      {/* Configurable Pricing */}
-      <PricingSection />
+        {/* Act 04: Automated 3-Way Match & Reconciliation Shield */}
+        <Act04Reconciliation />
 
-      {/* Final CTA & Premium Footer */}
-      <FooterAndCTA />
+        {/* Act 05: Multi-Stakeholder Operating System Simulator */}
+        <Act05PlatformOS />
+
+        {/* Act 06: Deployment Gateway & Terminal Pricing */}
+        <Act06Terminal />
+      </main>
     </div>
   );
 }
