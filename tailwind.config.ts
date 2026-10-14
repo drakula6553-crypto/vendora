@@ -1,4 +1,4 @@
-﻿import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
@@ -15,6 +15,7 @@ const config: Config = {
         midnight: "#040912",
         darknavy: "#081020",
         electric: {
+          DEFAULT: "#3A7BFF",
           50: "#F0F8FF",
           100: "#D6E4FF",
           200: "#A8C9FF",
@@ -27,6 +28,7 @@ const config: Config = {
           900: "#122C59",
         },
         gold: {
+          DEFAULT: "#CE9B18",
           50: "#FCF9F0",
           100: "#F7EFD8",
           200: "#EFD9A8",
